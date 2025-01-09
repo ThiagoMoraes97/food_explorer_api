@@ -1,10 +1,10 @@
 const AppError = require("../utils/AppError");
 const knex = require("../database/knex");
-const { hash, compare } = require("bcryptjs");
+const { hash } = require("bcryptjs");
 class UserController {
 
-    async create(req, res) {
-        const { name, email, password } = req.body;
+    async create(request, response) {
+        const { name, email, password } = request.body;
 
         const adminExists = await knex("users");
 
@@ -30,7 +30,7 @@ class UserController {
                 password: hashedPassword,
             });
         }
-        return res.json();
+        return response.json();
     }
 
 };
