@@ -1,5 +1,5 @@
-import { Router } from "express";
-import UserController from "../controllers/UserController";
+const { Router } = require("express");
+const UserController = require("../controllers/UserController");
 
 userRoutes = Router();
 
