@@ -1,5 +1,6 @@
 const knex = require("../database/knex");
 const DiskStorage = require("../provider/DiskStorage");
+const AppError = require("../utils/AppError");
 class DishController {
     
     async create(request, response) {
@@ -99,8 +100,9 @@ class DishController {
 
     async show(request, response) {
         const { id } = request.params;
+        const user_id = request.user.id;
 
-        const dish = await knex("dishes").where({ id }).first();
+        const dish = await knex("dishes").where({ id }).where({ user_id }).first();
 
         if(!dish) {
             throw new AppError("Prato não encontrado");
@@ -114,6 +116,30 @@ class DishController {
         }
 
         return response.json(dishWithIngredients);
+    }
+
+    async index(request, response) {
+        const user_id = request.user.id;
+        const { search } = request.query;
+
+        let userDishes;
+
+        if(search) {
+            userDishes = await knex("ingredients")
+            .select("dishes.name", "dishes.description", "dishes.price", "dishes.category", "dishes.image")
+            .where("dishes.user_id", user_id)
+            .where(function () {
+                // Agrupando condições para busca por nome do prato OU ingrediente e não interferir na consulta por user_id.
+                this.whereLike("dishes.name", `%${search}%`)
+                .orWhereLike("ingredients.name", `%${search}%`);
+            })
+            .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
+            .orderBy("dishes.name");
+        } else {
+            userDishes = await knex("dishes").where({ user_id }).orderBy("name");
+        }
+
+        return response.json(userDishes);
     }
 
     async delete(request, response) {

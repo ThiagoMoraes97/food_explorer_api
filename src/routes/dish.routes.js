@@ -9,10 +9,10 @@ dishRoutes = Router();
 
 const dishController = new DishController();
 
-dishRoutes.post("/", ensureAuthenticated, multer(uploadConfig.MULTER).single("image"), dishController.create);
-dishRoutes.put("/:id", ensureAuthenticated, multer(uploadConfig.MULTER).single("image"), dishController.update);
+dishRoutes.post("/", ensureAuthenticated, verifyUserAuthorization(['admin']), multer(uploadConfig.MULTER).single("image"), dishController.create);
+dishRoutes.put("/:id", ensureAuthenticated, verifyUserAuthorization(['admin']), multer(uploadConfig.MULTER).single("image"), dishController.update);
 dishRoutes.get("/:id", ensureAuthenticated, dishController.show);
-dishRoutes.delete("/:id", ensureAuthenticated, dishController.delete);
-
+dishRoutes.get("/", ensureAuthenticated, dishController.index);
+dishRoutes.delete("/:id", ensureAuthenticated, verifyUserAuthorization(['admin']), dishController.delete);
 
 module.exports = dishRoutes;
