@@ -6,6 +6,10 @@ class UserController {
     async create(request, response) {
         const { name, email, password } = request.body;
 
+        if(!name || !email || !password) {
+            throw new AppError("Preencha todos os campos.", 401);
+        }
+
         const adminExists = await knex("users");
 
         const checkIfUserExists = await knex("users").where({ email }).first();
@@ -30,7 +34,7 @@ class UserController {
                 password: hashedPassword,
             });
         }
-        return response.json();
+        return response.status(201).json();
     }
 
 };
